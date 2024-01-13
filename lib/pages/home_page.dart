@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:habitmap/components/my_drawer.dart';
 import 'package:habitmap/components/my_habit_tile.dart';
+import 'package:habitmap/components/my_heat_map.dart';
 import 'package:habitmap/database/habit_database.dart';
 import 'package:habitmap/models/habit.dart';
 import 'package:habitmap/util/habit_util.dart';
@@ -164,18 +164,54 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Center(child: Text("Habitmap")),
+        title: const Text("H A B I T M A P  "),
       ),
-      drawer: const MyDrawer(),
       floatingActionButton: FloatingActionButton(
         onPressed: createNewHabit,
         elevation: 0,
         backgroundColor: Theme.of(context).colorScheme.tertiary,
         child: const Icon(
           Icons.add,
+          color: Colors.white,
         ),
       ),
-      body: _buildHabitList(),
+      body: ListView(
+        children: [
+          // Heat map
+          _buildHeatMap(),
+
+          // habit list
+          _buildHabitList(),
+        ],
+      ),
+    );
+  }
+
+  // build Heat Map
+  Widget _buildHeatMap() {
+    // habit database
+    final habitDatabase = context.watch<HabitDatabase>();
+
+    // current habits
+    List<Habit> currentHabits = habitDatabase.currentHabits;
+
+    // return heat map
+    return FutureBuilder<DateTime?>(
+      future: habitDatabase.getFirstLaunchDate(),
+      builder: (context, snapshot) {
+        // once data is available -> build the heatmap
+        if (snapshot.hasData) {
+          return MyHeatMap(
+            startDate: snapshot.data!,
+            datasets: prepHeatMapDataset(currentHabits),
+          );
+        }
+
+        // handles case if no data map is returned
+        else {
+          return Container();
+        }
+      },
     );
   }
 
@@ -190,6 +226,8 @@ class _HomePageState extends State<HomePage> {
     // return list of habits
     return ListView.builder(
       itemCount: currentHabits.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         // get each individual habit
         final habit = currentHabits[index];

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitmap/database/habit_database.dart';
+import 'package:habitmap/themes/dark_mode.dart';
 import 'package:habitmap/themes/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'pages/home_page.dart';
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const HomePage(),
-      theme: Provider.of<ThemeProvider>(context).themeData,
+      theme: darkMode,
     );
   }
 }
